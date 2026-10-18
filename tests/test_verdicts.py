@@ -79,7 +79,7 @@ def test_verdict_concentration_text_and_kind():
     kind, text = ev.verdict_concentration(_conc())
     assert kind == "success"
     assert text == ("Beim Chirp schrumpft die wirksame Breite von 24,9 (Spektrogramm, σ = 12) auf 1,1 (Neu zuordnen) und 1,9 (Synchrosqueezing); Wigner-Ville 5,7. "
-                    "Bei der Sinus-FM bleibt mehr übrig: 40,7 auf 3,6 und 11,4 (Wigner-Ville 21,8), weil die Linie sich innerhalb des Fensters krümmt.")
+                    "Bei der Sinus-FM bleibt mehr übrig: 40,7 auf 3,6 und 11,4 (Wigner-Ville 21,8), vermutlich, weil die Linie sich innerhalb des Fensters krümmt.")
     assert ev.verdict_concentration(_conc(tone=(48.2, 24.1, 12.1, 24.1, 1.0, 5.6, 10.2)))[0] == "warning" and ev.verdict_concentration(_conc(tone=(48.2, 24.1, 12.1, 24.0, 1.0, 5.6, 10.2)))[0] == "success"
 
 

@@ -237,7 +237,7 @@ def verdict_concentration(rows: list[dict]) -> tuple[str, str]:
     ok = all(r["reassigned"] < r["spec"][sp] for r in rows)
     return ("success" if ok else "warning"), (f"Beim Chirp schrumpft die wirksame Breite von {de(ch['spec'][sp], 1)} (Spektrogramm, σ = {sp:g}) auf {de(ch['reassigned'], 1)} (Neu zuordnen) und {de(ch['squeezed'], 1)} (Synchrosqueezing); "
                                               f"Wigner-Ville {de(ch['wvd'], 1)}. Bei der Sinus-FM bleibt mehr übrig: {de(fm['spec'][sp], 1)} auf {de(fm['reassigned'], 1)} und {de(fm['squeezed'], 1)} (Wigner-Ville {de(fm['wvd'], 1)}), "
-                                              "weil die Linie sich innerhalb des Fensters krümmt.")
+                                              "vermutlich, weil die Linie sich innerhalb des Fensters krümmt.")
 
 
 def verdict_cross(res: dict) -> tuple[str, str]:

@@ -21,7 +21,7 @@ GATE_FACTOR = 3.0                                                              #
 SEED_MAX, DEFAULT_SEED = 999999, 41
 
 NFFT = 1024                                                                    # Frequenzraster 1/1024 (Zyklen je Abtastwert)
-F_SHOW = 0.3                                                                   # obere Frequenz der Bilder (die WVD ist nur unter 0,25 frei von Aliasing)
+F_SHOW = 0.3                                                                   # obere Frequenz der Bilder (konservativ: die WVD des analytischen Signals faltet erst am Rand 0 / 0,5)
 DB_FLOOR = -60.0
 BAND = 3                                                                       # Halbbreite (Rasterpunkte) des Bandes um eine wahre Linie
 OK_SHARE = 0.8                                                                 # Anteil auf den wahren Linien, ab dem das Verdikt „gut“ lautet
@@ -65,7 +65,7 @@ PRESETS = {
 }
 PRESET_HELP = {
     "Chirp: Neu zuordnen schärft auf einen Rasterpunkt": "Linearer Chirp 0,05 bis 0,20, Fenster σ = 12: Das Spektrogramm verschmiert die Linie über etwa 25 Rasterpunkte, die neu zugeordnete Darstellung zieht sie auf etwa einen zusammen.",
-    "Sinus-FM: Synchrosqueezing und Neu zuordnen im Vergleich": "Sinusförmig modulierte Frequenz: Neu zuordnen schärft stark, Synchrosqueezing (nur in der Frequenz verschoben) weniger; an den Umkehrpunkten der Linie bleibt ein Rest an Breite.",
+    "Sinus-FM: Synchrosqueezing und Neu zuordnen im Vergleich": "Sinusförmig modulierte Frequenz: Neu zuordnen schärft stark, Synchrosqueezing (nur in der Frequenz verschoben) weniger; bei der Neuzuordnung bleibt an den Umkehrpunkten der Linie ein Rest an Breite, beim Synchrosqueezing an der steilsten Stelle.",
     "Zwei Töne: der Kreuzterm der Wigner-Ville-Verteilung": "Zwei gleich starke Töne bei 0,10 und 0,18: Die Wigner-Ville-Verteilung zeigt zwischen ihnen einen Kreuzterm von der Größe der Töne selbst, mit negativen Werten; das Spektrogramm hat dort fast nichts.",
     "Zwei Töne nahe beieinander: Neu zuordnen löst nicht auf": "Töne im Abstand 0,02 (1,5 Fensterbreiten): Das Spektrogramm trennt sie gerade noch, die neu zugeordnete Darstellung zeigt zusätzliche Gipfel, die es nicht gibt (Artefakte).",
     "Rauschen: Synchrosqueezing bricht ein": "Chirp bei 0 dB: Der Gipfel des Synchrosqueezings springt weit von der Linie weg (Fehler 0,08 gegen 0,0015 im Spektrogramm); schalten Sie die Rauschschwelle ein, um den Ausreißer zu entfernen. Im Mittel über 20 Läufe bleibt das Verfahren bei 0 dB auch mit Schwelle schlechter als das Spektrogramm (Experiment unten).",

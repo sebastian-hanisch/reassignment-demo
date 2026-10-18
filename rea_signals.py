@@ -1,6 +1,6 @@
 """Testsignale (Ton, Chirp, Sinus-FM, zwei Töne, zwei parallele Chirps) als reelle Reihen mit wahrer Momentanfrequenz, analytisches Signal und Rauschen.
 
-Frequenzen in Zyklen je Abtastwert (Abtastrate 1); alle Komponenten haben die Amplitude 1 und bleiben unter 0,25, damit die Wigner-Ville-Verteilung des analytischen Signals nicht faltet.
+Frequenzen in Zyklen je Abtastwert (Abtastrate 1); alle Komponenten haben die Amplitude 1 und bleiben unter 0,25 (konservative Wahl: die Wigner-Ville-Verteilung des analytischen Signals faltet erst am Rand 0 / 0,5).
 """
 
 import math

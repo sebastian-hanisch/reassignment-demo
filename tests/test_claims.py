@@ -103,17 +103,17 @@ def test_readme_noise():
     assert f"Bei 0 dB gibt es keinen Vorsprung mehr: {de(lo['Neu zugeordnet'], 4)} gegen {de(lo['Spektrogramm'], 4)}" in README and lo["Neu zugeordnet"] > 0.9 * lo["Spektrogramm"]
     assert f"Synchrosqueezing bricht bei 0 dB ein ({de(lo['Synchrosqueezing'], 4)}); mit einer Schwelle von 3 Effektivwerten des Rauschens in der STFT sind es {de(lo['Synchrosqueezing mit Schwelle'], 4)}, immer noch schlechter" in README
     assert lo["Synchrosqueezing mit Schwelle"] > lo["Spektrogramm"] and lo["Synchrosqueezing"] > 20 * lo["Spektrogramm"]
-    assert f"Wigner-Ville ({de(lo['Wigner-Ville'], 4)}) und SPWVD ({de(lo['SPWVD'], 4)}) sind bei 0 dB besser als das Spektrogramm" in README and max(lo["Wigner-Ville"], lo["SPWVD"]) < lo["Spektrogramm"]
-    values = [bad[m] for m in ev.NOISE_METHODS]
-    assert f"Bei −5 dB versagen alle ({de(min(values), 2)} bis {de(max(values), 2)})" in README and min(values) > 0.02 and (de(min(values), 2), de(max(values), 2)) == ("0,03", "0,14")
+    assert f"Wigner-Ville ({de(lo['Wigner-Ville'], 4)}) und SPWVD ({de(lo['SPWVD'], 4)}) liegen bei 0 dB im Mittel der Lauf-RMSE unter dem Spektrogramm" in README and max(lo["Wigner-Ville"], lo["SPWVD"]) < lo["Spektrogramm"]
+    others = [bad[m] for m in ev.NOISE_METHODS if m != "SPWVD"]
+    assert f"Bei −5 dB liegen Spektrogramm, Neu zuordnen, Wigner-Ville und Synchrosqueezing bei {de(min(others), 2)} bis {de(max(others), 2)}, nur die SPWVD bleibt bei {de(bad['SPWVD'], 2)}" in README and (de(min(others), 2), de(max(others), 2), de(bad["SPWVD"], 2)) == ("0,06", "0,14", "0,03") and bad["SPWVD"] < 0.5 * bad["Spektrogramm"]
 
 
 def test_readme_resolution():
     rows = rows_by("df", "resolution")
     assert f"Das Spektrogramm zeigt zwei Gipfel ab df = {de(0.02, 3)} ({de(rows[0.02]['widths'])} Fensterbreiten)" in README
-    assert rows[0.01]["peaks_spec"] == rows[0.015]["peaks_spec"] == 1 and rows[0.02]["peaks_spec"] == 2 and rows[0.02]["peaks_re"] == 6 and "bei dieser Distanz sechs" in README
-    assert rows[0.01]["peaks_re"] == 1 and rows[0.01]["widths"] < 1.0 and "unter einer Fensterbreite wie das Spektrogramm einen" in README
-    assert rows[0.03]["peaks_re"] == 2 and rows[0.03]["widths"] > 2.0 and "Erst ab zwei Fensterbreiten (df = 0,030) sind es wieder zwei" in README
+    assert rows[0.01]["peaks_spec"] == rows[0.015]["peaks_spec"] == 1 and rows[0.02]["peaks_spec"] == 2 and rows[0.02]["peaks_re"] == 6 and "bei df = 0,020 sechs" in README and rows[0.015]["peaks_re"] == 2 and "bei df = 0,015 zwei Gipfel an falschen Lagen" in README
+    assert rows[0.01]["peaks_re"] == 1 and rows[0.01]["widths"] < 1.0 and "unter einer Fensterbreite zeigt es wie das Spektrogramm einen" in README
+    assert rows[0.03]["peaks_re"] == 2 and rows[0.03]["widths"] > 2.0 and "Erst ab df = 0,030 (mehr als zwei Fensterbreiten) sind es wieder zwei" in README
     assert f"bei df = 0,050 liegen {de(100 * rows[0.05]['share_re'], 0)} % der neu zugeordneten Leistung auf den wahren Linien (Spektrogramm {de(100 * rows[0.05]['share_spec'], 0)} %)" in README
 
 
@@ -121,7 +121,7 @@ def test_readme_window():
     rows = rows_by("sigma", "window")
     c = {s: r["clean"] for s, r in rows.items()}
     assert (f"{de(c[4]['Spektrogramm'], 5)} bei σ = 4, {de(c[12]['Spektrogramm'], 5)} bei σ = 12, {de(c[32]['Spektrogramm'], 5)} bei σ = 32") in README
-    assert f"nichts ({de(c[12]['Neu zugeordnet'], 5)} bei σ = 12)" in README and abs(c[12]["Neu zugeordnet"] - c[12]["Spektrogramm"]) < 0.01 * c[12]["Spektrogramm"]
+    assert f"höchstens um 4,5 % ({de(c[12]['Neu zugeordnet'], 5)} bei σ = 12)" in README and de(100 * max(abs(v["Neu zugeordnet"] - v["Spektrogramm"]) / v["Spektrogramm"] for v in c.values()), 1) == "4,5"
     assert f"bei σ = 32 auf {de(c[32]['Neu zugeordnet (zur neuen Zeit)'], 5)}" in README and c[32]["Neu zugeordnet (zur neuen Zeit)"] < 0.7 * c[32]["Spektrogramm"]
     assert c[4]["Spektrogramm"] < c[12]["Spektrogramm"] < c[32]["Spektrogramm"]
 
@@ -150,7 +150,8 @@ def test_readme_limit_about_the_analytic_signal_deviation():
     sig = SG.make_signal("Sinus-FM", 512)
     ph = np.unwrap(np.angle(SG.analytic(sig.x)))
     dev = np.abs((ph[2:] - ph[:-2]) / (4 * np.pi) - sig.tracks[0][1:-1])[30:-30].max()
-    assert 0.002 < dev < 0.003 and "um bis zu 0,003" in README
+    dev_win = np.abs((ph[2:] - ph[:-2]) / (4 * np.pi) - sig.tracks[0][1:-1])[59:451].max()
+    assert 0.002 < dev < 0.003 and 0.0012 < dev_win < 0.0014 and "im ausgewerteten Fenster um bis zu 0,0013" in README and "am Rand bis zu 0,003" in README
 
 
 def test_readme_dev_dependency_and_footer_sections():
@@ -167,11 +168,13 @@ def test_readme_dev_dependency_and_footer_sections():
 def test_app_texts():
     assert f"(bei σ = 12 etwa {de(ev.window_width(12.0), 3)})" in APP and "Die Fensterbreite in der Frequenz ist 1/(2πσ)" in APP
     rows = rows_by("snr", "noise")
-    assert "bricht ab etwa 0 dB ein" in APP and rows[0]["Synchrosqueezing"] > 5 * rows[0]["Spektrogramm"] and rows[10]["Synchrosqueezing"] < 2 * rows[10]["Spektrogramm"]
-    assert "alle Verfahren versagen bei etwa −5 dB" in APP and min(rows[-5][m] for m in ev.NOISE_METHODS) > 0.02
+    scan = {r["snr"]: r["Synchrosqueezing"] / r["Spektrogramm"] for r in ev.sweep_noise(snrs=(8, 6, 0))}
+    assert scan[8] < 1.2 and scan[6] > 2 and 25 < scan[0] < 40 and "verschlechtert sich ab etwa 6 dB" in APP and "etwa 30-mal schlechter" in APP
+    assert rows[0]["Synchrosqueezing"] > 5 * rows[0]["Spektrogramm"] and rows[10]["Synchrosqueezing"] < 2 * rows[10]["Spektrogramm"]
+    assert "bei −5 dB liegen alle Verfahren außer der SPWVD bei 0,06 bis 0,14" in APP and min(rows[-5][m] for m in ev.NOISE_METHODS if m != "SPWVD") > 0.055 and rows[-5]["SPWVD"] < 0.5 * rows[-5]["Spektrogramm"]
     res = rows_by("df", "resolution")
     assert "Zwei Töne unter etwa einer Fensterbreite bleiben einer, knapp darüber entstehen zusätzliche Gipfel" in APP and res[0.01]["peaks_re"] == 1 and res[0.02]["peaks_re"] > 2
     assert "Ziel 0,05 bis 0,20" not in APP and "lineare Frequenzrampe 0,05 bis 0,20" in APP and "Kreuzterme von der Größe der Komponenten" in APP
     assert "das Raster gibt 0,00028 vor" in APP and de(1 / (math.sqrt(12) * C.NFFT), 5) == "0,00028"
-    assert "Zeiten 100 bis 411" in APP and "Dreifache des Effektivwerts" in APP and "Frequenzen über 0,25 würden bei der Wigner-Ville-Verteilung falten" in APP
+    assert "Zeiten 100 bis 411" in APP and "Dreifache des Effektivwerts" in APP and "die Frequenzen bleiben unter 0,25 (konservative Wahl)" in APP
     assert "Stück 14" in APP and "vierzehnte Demo" in APP

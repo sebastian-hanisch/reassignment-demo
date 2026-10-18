@@ -53,7 +53,7 @@ st.markdown(
     """
 Ein **Spektrogramm** verschmiert die Energie über die Breite des Fensters: Ein Ton, der nur einen Rasterpunkt breit ist, erscheint über Dutzende. **Reassignment** (Neuzuordnung) verschiebt jeden Wert
 $(t, f)$ an den **Schwerpunkt** seiner Energie $(\\hat t, \\hat f)$, den man aus zwei weiteren Fensterversionen (Ableitung und Zeitgewicht) ausrechnet. **Synchrosqueezing** verschiebt nur in der Frequenz und
-sammelt die komplexen Werte, damit die Darstellung umkehrbar bleibt. Die **Wigner-Ville-Verteilung** (WVD) kommt ganz ohne Fenster aus und ist für einen Chirp noch schärfer, erzeugt aber zwischen zwei Komponenten
+sammelt die komplexen Werte, damit die Darstellung umkehrbar bleibt. Die **Wigner-Ville-Verteilung** (WVD) braucht mathematisch kein Fenster und ist für einen Chirp schärfer als das Spektrogramm, aber nicht schärfer als die Neuzuordnung; sie erzeugt zwischen zwei Komponenten
 **Kreuzterme** und negative Werte; die geglättete Pseudo-WVD (SPWVD) tauscht Schärfe gegen weniger Kreuzterme.
 
 Dies ist die vierzehnte Demo der Reihe „Spektral- und Wavelet-Analyse“, auf das **Spektrogramm** und das **Skalogramm** aufbauend. Alles ist **simuliert**: Die wahre Frequenz der Signale ist bekannt, die Verfahren
@@ -66,7 +66,7 @@ with st.expander("So wird neu zugeordnet", expanded=True):
         """
 1. **Spektrogramm:** Gauß-Fenster der Breite $\\sigma$, STFT $X(t, f)$; die Leistung $|X|^2$ ist über das Fenster verschmiert.
 2. **Schwerpunkt:** Mit der Ableitung $g'$ und dem Zeitgewicht $t\\,g$ des Fensters ist $\\hat f = f - \\operatorname{Im}(X_{g'}/X_g)/2\\pi$ und $\\hat t = t + \\operatorname{Re}(X_{tg}/X_g)$ der Schwerpunkt der Energie um $(t, f)$.
-3. **Neu zuordnen:** Die Leistung jedes Punktes wandert nach $(\\hat t, \\hat f)$; **Synchrosqueezing** nur nach $\\hat f$ (komplexer Wert). Bei einem linearen Chirp liegen alle Punkte danach auf der Linie.
+3. **Neu zuordnen:** Die Leistung jedes Punktes wandert nach $(\\hat t, \\hat f)$; **Synchrosqueezing** nur nach $\\hat f$ (komplexer Wert). Bei einem linearen Chirp liegen die Punkte danach (bis auf die Ränder) in einem Band von wenigen Rasterpunkten um die Linie.
 4. **Wigner-Ville:** $W(t, f) = \\sum_\\tau z[t{+}\\tau]\\,\\overline{z[t{-}\\tau]}\\,e^{-i4\\pi f\\tau}$ ohne Fenster in der Zeit; quadratisch im Signal, daher Kreuzterme. **SPWVD:** Gauß-Fenster in der Verzögerung und Glättung in der Zeit.
         """
     )
@@ -107,7 +107,7 @@ with st.sidebar:
                       help="Spektrogramm: |STFT|². Neu zugeordnet: Leistung am Energieschwerpunkt. Synchrosqueezing: komplexe Werte nur in der Frequenz verschoben. Wigner-Ville: ohne Fenster, mit Kreuztermen. SPWVD: geglättet.")
     if method == "SPWVD":
         sigma_t = st.slider("SPWVD: Glättung in der Zeit σ_t", C.SIGMA_T_MIN, C.SIGMA_T_MAX, int(st.session_state["sigma_t_kept"]),
-                            help="Gauß-Glättung der Verzögerungsprodukte in der Zeit; 0 heißt keine Glättung (nur das Verzögerungsfenster). Gegen Kreuzterme mit Periode 1/df hilft σ_t etwa die halbe Periode.")
+                            help="Gauß-Glättung der Verzögerungsprodukte in der Zeit; 0 heißt keine Glättung (nur das Verzögerungsfenster). Gegen Kreuzterme mit Periode 1/df hilft σ_t etwa die halbe Periode (nur für df = 0,08 gemessen).")
         sigma_lag = st.slider("SPWVD: Verzögerungsfenster σ_lag", C.SIGMA_LAG_MIN, C.SIGMA_LAG_MAX, int(st.session_state["sigma_lag_kept"]),
                               help="Gauß-Fenster über die Verzögerung τ: klein glättet in der Frequenz stark, groß nähert die WVD an.")
         st.session_state["sigma_t_kept"], st.session_state["sigma_lag_kept"] = int(sigma_t), int(sigma_lag)
@@ -240,10 +240,10 @@ st.markdown(
 |---|---|---|
 | **Eine Komponente je Zeitpunkt** | Bei zwei Komponenten innerhalb einer Fensterbreite mischen sich die Schwerpunkte: Das neu zugeordnete Bild zeigt Punkte, die zu keinem Signal gehören. | größeres Fenster, Zerlegung in Moden |
 | **Die Linie krümmt sich nicht im Fenster** | Der Schwerpunkt-Ansatz ist für lineare Chirps exakt; bei Sinus-FM bleibt eine Restbreite, und der Fehler wächst mit der Fensterbreite. | Reassignment und Synchrosqueezing zweiter Ordnung |
-| **Das Rauschen ist klein gegen die Linie** | Der Schwerpunkt aus Quotienten kleiner Werte ist unbestimmt: Synchrosqueezing bricht ab etwa 0 dB ein, alle Verfahren versagen bei etwa −5 dB. | Rauschschwelle, robuste Schätzung |
-| **Neu zuordnen vergrößert die Auflösung** | Nein: Zwei Töne unter etwa einer Fensterbreite bleiben einer, knapp darüber entstehen zusätzliche Gipfel. Die Auflösung setzt das Fenster. | längeres Fenster, parametrische Verfahren |
-| **Die Wigner-Ville-Verteilung ist das Schärfste** | Für einen einzelnen Chirp ja, für alles mit zwei Komponenten erzeugt sie Kreuzterme von der Größe der Komponenten und negative Werte. | SPWVD, Choi-Williams-Kern (nicht gebaut) |
-| **Das Signal ist reell und analytisch gemacht** | Die Verteilungen gelten für das analytische Signal; Frequenzen über 0,25 würden bei der Wigner-Ville-Verteilung falten. | höhere Abtastung |
+| **Das Rauschen ist klein gegen die Linie** | Der Schwerpunkt aus Quotienten kleiner Werte ist unbestimmt: Synchrosqueezing verschlechtert sich ab etwa 6 dB und ist bei 0 dB etwa 30-mal schlechter als das Spektrogramm; bei −5 dB liegen alle Verfahren außer der SPWVD bei 0,06 bis 0,14. | Rauschschwelle, robuste Schätzung |
+| **Neu zuordnen vergrößert die Auflösung** | Nein (gleich starke Töne, σ = 12): Zwei Töne unter etwa einer Fensterbreite bleiben einer, knapp darüber entstehen zusätzliche Gipfel. Die Auflösung setzt vermutlich das Fenster (nur eine Fensterbreite gemessen). | längeres Fenster, parametrische Verfahren |
+| **Die Wigner-Ville-Verteilung ist das Schärfste** | Für einen einzelnen Chirp ist sie schärfer als das Spektrogramm, aber nicht schärfer als die Neuzuordnung; bei zwei Komponenten erzeugt sie Kreuzterme von der Größe der Komponenten und negative Werte. | SPWVD, Choi-Williams-Kern (nicht gebaut) |
+| **Das Signal ist reell und analytisch gemacht** | Die Verteilungen gelten für das analytische Signal; die Frequenzen bleiben unter 0,25 (konservative Wahl), die Wigner-Ville-Verteilung des analytischen Signals faltet in dieser Formulierung erst am Rand 0 / 0,5. | höhere Abtastung |
 """,
 )
 
