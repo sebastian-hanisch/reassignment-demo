@@ -1,7 +1,6 @@
 # Neu zuordnen statt verschmieren: Reassignment und Synchrosqueezing schärfen das Spektrogramm – und wo die Wigner-Ville-Verteilung scheitert – Streamlit-Demo
 
-<!-- TODO nach dem Deploy: direkt hierher den Live-Link setzen (Leerzeile davor und danach):
-**[→ Demo live ausprobieren](https://sebastianhanisch-reassignment-demo.streamlit.app/)** -->
+**[→ Demo live ausprobieren](https://sebastianhanisch-reassignment-demo.streamlit.app/)**
 
 Vierzehnte Demo der Reihe **Spektral- und Wavelet-Analyse** in der „Konzepte“-Reihe für die Website „Sebastian Hanisch – Operations Research und Machine Learning“, aufbauend auf den Demos zum **Spektrogramm** und zum **Skalogramm**.
 Ein Spektrogramm mit Gauß-Fenster wird auf den Energieschwerpunkt seiner Punkte **neu zugeordnet** (Reassignment), nur in der Frequenz verschoben (**Synchrosqueezing**) und mit der **Wigner-Ville-Verteilung** und ihrer
@@ -104,4 +103,4 @@ Gebaut mit Streamlit, Plotly und NumPy.
 
 ---
 
-Diese Demo ist Teil des Portfolios von [Sebastian Hanisch](https://sebastianhanisch.net) – Operations Research und Machine Learning ([Über mich](https://sebastianhanisch.net/ueber-mich.html)). Mehr zu den Demos: [Interaktive Demos](https://sebastianhanisch.net/demos.html).
+Diese Demo ist Teil des Portfolios von [Sebastian Hanisch](https://sebastianhanisch.net) – Operations Research und Machine Learning ([Über mich](https://sebastianhanisch.net/ueber-mich.html)). Mehr zur Reihe: [Spektren und Wavelets: von Fourier zum Vergleich](https://sebastianhanisch.net/konzepte-spektral-wavelet-analyse.html).
